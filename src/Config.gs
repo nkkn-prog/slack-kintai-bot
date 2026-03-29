@@ -3,7 +3,7 @@
  */
 
 var TIMEZONE = 'Asia/Tokyo';
-var HEADER_ROW = ['日付', '稼働開始', '稼働終了', '稼働時間', '備考'];
+var HEADER_ROW = ['日付', '稼働開始', '稼働終了', '稼働時間', '稼働合計', '備考'];
 var ALERT_FLAG = '12h_alerted';
 var ALERT_HOURS = 12;
 
@@ -79,12 +79,11 @@ function formatDuration_(millis) {
 }
 
 /**
- * ミリ秒の差分を「H:mm:ss」形式に変換（スプレッドシート用）
+ * ミリ秒の差分を小数時間に変換（スプレッドシート用）
+ * 例: 1時間30分 → 1.50, 1時間45分 → 1.75
+ * 小数点第3位を四捨五入し、小数点第2位まで表示
  */
 function formatDurationForSheet_(millis) {
-  var totalSeconds = Math.floor(millis / 1000);
-  var hours = Math.floor(totalSeconds / 3600);
-  var minutes = Math.floor((totalSeconds % 3600) / 60);
-  var seconds = totalSeconds % 60;
-  return hours + ':' + ('00' + minutes).slice(-2) + ':' + ('00' + seconds).slice(-2);
+  var hours = millis / (1000 * 60 * 60);
+  return Math.round(hours * 100) / 100;
 }

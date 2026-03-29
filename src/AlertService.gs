@@ -38,9 +38,9 @@ function checkUnclosedSessions() {
         var ss = SpreadsheetApp.openById(session.spreadsheetId);
         var sheet = ss.getSheetByName(session.sheetName);
         if (sheet) {
-          var currentNote = sheet.getRange(session.rowNumber, 5).getValue();
+          var currentNote = sheet.getRange(session.rowNumber, 6).getValue();
           var newNote = currentNote ? currentNote + ' ' + ALERT_FLAG : ALERT_FLAG;
-          sheet.getRange(session.rowNumber, 5).setValue(newNote);
+          sheet.getRange(session.rowNumber, 6).setValue(newNote);
         }
       } catch (e) {
         console.error('Error marking alert for user ' + session.userId + ': ' + e.message);

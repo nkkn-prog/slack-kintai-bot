@@ -5,13 +5,16 @@
 /**
  * 指定チャンネルにメッセージを送信
  */
-function postSlackMessage_(channel, text) {
+function postSlackMessage_(channel, text, threadTs) {
   var token = getSlackBotToken_();
   var url = 'https://slack.com/api/chat.postMessage';
   var payload = {
     channel: channel,
     text: text
   };
+  if (threadTs) {
+    payload.thread_ts = threadTs;
+  }
   var options = {
     method: 'post',
     contentType: 'application/json',

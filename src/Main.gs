@@ -10,7 +10,8 @@ function doPost(e) {
 
   // URL verification challenge
   if (body.type === 'url_verification') {
-    return ContentService.createTextOutput(body.challenge);
+    return ContentService.createTextOutput(JSON.stringify({ challenge: body.challenge }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 
   // イベントコールバック以外は無視
@@ -33,15 +34,16 @@ function doPost(e) {
   }
   cache.put(eventId, 'processed', 60);
 
-  // メッセージテキストの完全一致判定
+  // メッセージテキストの部分一致判定
   var text = event.text;
   var userId = event.user;
   var channelId = event.channel;
+  var threadTs = event.thread_ts || event.ts; // スレッド内ならthread_ts、そうでなければ元メッセージのts
 
-  if (text === '稼働開始') {
-    handleWorkStart_(userId, channelId);
-  } else if (text === '稼働終了') {
-    handleWorkEnd_(userId, channelId);
+  if (text.indexOf('稼働開始') >= 0) {
+    handleWorkStart_(userId, channelId, threadTs);
+  } else if (text.indexOf('稼働終了') >= 0) {
+    handleWorkEnd_(userId, channelId, threadTs);
   }
 
   return ContentService.createTextOutput('');

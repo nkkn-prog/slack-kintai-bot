@@ -91,7 +91,7 @@ function findOpenSession_(sheet) {
  * 稼働開始を記録
  */
 function recordStart_(sheet, dateStr, timeStr) {
-  sheet.appendRow([dateStr, timeStr, '', '', '']);
+  sheet.appendRow([dateStr, timeStr, '', '', '', '']);
 }
 
 /**
@@ -111,8 +111,27 @@ function recordEnd_(sheet, rowNumber, endTimeStr, startDateStr, startTimeStr, en
   var durationSheet = formatDurationForSheet_(durationMillis);
   var durationDisplay = formatDuration_(durationMillis);
 
-  // 稼働時間を記入
-  sheet.getRange(rowNumber, 4).setValue(durationSheet);
+  // 稼働時間を記入（小数時間、例: 1.50）
+  var durationCell = sheet.getRange(rowNumber, 4);
+  durationCell.setValue(durationSheet);
+  durationCell.setNumberFormat('0.00');
+
+  // 稼働合計を計算（当月シート内のD列を累算）
+  var lastRow = sheet.getLastRow();
+  var cumulativeTotal = 0;
+  if (lastRow >= 2) {
+    var allDurations = sheet.getRange(2, 4, lastRow - 1, 1).getValues();
+    for (var i = 0; i < allDurations.length; i++) {
+      var val = allDurations[i][0];
+      if (typeof val === 'number' && !isNaN(val)) {
+        cumulativeTotal += val;
+      }
+    }
+  }
+  cumulativeTotal = Math.round(cumulativeTotal * 100) / 100;
+  var totalCell = sheet.getRange(rowNumber, 5);
+  totalCell.setValue(cumulativeTotal);
+  totalCell.setNumberFormat('0.00');
 
   return durationDisplay;
 }
@@ -167,7 +186,7 @@ function getAllOpenSessions_() {
         if (openRow) {
           var startDateStr = sheet.getRange(openRow, 1).getValue();
           var startTimeStr = sheet.getRange(openRow, 2).getValue();
-          var noteVal = sheet.getRange(openRow, 5).getValue();
+          var noteVal = sheet.getRange(openRow, 6).getValue();
 
           results.push({
             userId: userId,
